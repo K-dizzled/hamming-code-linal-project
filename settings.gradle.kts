@@ -1,4 +1,4 @@
-rootProject.name = "kotlin-runnable-example"
+rootProject.name = "linal-sem1-hamming-project"
 
 pluginManagement {
     val kotlinVersion: String by settings
