@@ -1,6 +1,5 @@
 package ru.emkn.kotlin
 
-
 fun main() {
     println(decodeBlock(encodeBlock(listOf(0, 1, 0, 1))))
 }
