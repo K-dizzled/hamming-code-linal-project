@@ -1,23 +1,50 @@
 package ru.emkn.kotlin
 
+import kotlin.random.Random
+
 fun main() {
-    println(decodeBlock(encodeBlock(listOf(0, 1, 0, 1))))
+    val inputString = "Look\n" +
+            "If you had\n" +
+            "One shot\n" +
+            "Or one opportunity\n" +
+            "To seize everything you ever wanted\n" +
+            "In one moment\n" +
+            "Would you capture it\n" +
+            "Or just let it slip?"
+    println("Исходная строка:\n$inputString\n")
+
+    var binaryString = convertStringToBinary(inputString)
+    println("Переведенная в бинарную строка: ${binaryString.joinToString("")}\n")
+
+    val blocks = splitIntoBlocks(binaryString).toMutableList()
+    blocks.replaceAll { encodeBlock(it) }
+    println("Закодированная строка: ${blocks.flatten().joinToString("")}\n")
+
+    blocks.replaceAll { changeRandomBitInBlock(it) }
+    println("Поврежденная строка: ${blocks.flatten().joinToString("")}\n")
+
+    blocks.replaceAll { decodeBlock(it) }
+    binaryString = connectBlocksTogether(blocks)
+    println("Восстановленная строка: ${binaryString.joinToString("")}\n")
+
+    val outputString = convertBinaryToString(binaryString)
+    println("Итоговая строка:\n$outputString")
 }
 
 fun decodeBlock(block: List<Int>): List<Int> {
-    val h = Matrix(
-        7, 3, arrayOf(
-            arrayOf(0, 0, 0, 1, 1, 1, 1),
-            arrayOf(0, 1, 1, 0, 0, 1, 1),
-            arrayOf(1, 0, 1, 0, 1, 0, 1)
-        )
-    )
+    val correctedBlock = correctBlock(block)
+    val decodedBlock = mutableListOf<Int>()
 
-    return multiplyMatrix(block, h)
+    decodedBlock.add(correctedBlock[6])
+    decodedBlock.add(correctedBlock[5])
+    decodedBlock.add(correctedBlock[4])
+    decodedBlock.add(correctedBlock[2])
+
+    return decodedBlock
 }
 
 fun encodeBlock(block: List<Int>): List<Int> {
-    val g = Matrix(
+    val matrixG = Matrix(
         4, 7, arrayOf(
             arrayOf(1, 0, 1, 1),
             arrayOf(1, 1, 0, 1),
@@ -29,45 +56,13 @@ fun encodeBlock(block: List<Int>): List<Int> {
         )
     )
 
-    return multiplyMatrix(block, g)
+    return multiplyMatrix(block, matrixG)
 }
 
-fun multiplyMatrix(block: List<Int>, matrix: Matrix<Int>) : List<Int> {
-    var multRow: Int
-    var index: Int
-    val result = mutableListOf<Int>()
-    for (i in 0 until matrix.ySize) {
-        multRow = 0
-        index = 0
-        matrix.forEachInRow(i) { multRow += it * block[index]; index++ }
-        result.add(multRow % 2)
-    }
-    return result.toList()
-}
+fun changeRandomBitInBlock(block: List<Int>): List<Int> {
+    val new = block.toMutableList()
+    val rand = Random.nextInt(0, new.size)
+    new[rand] = (new[rand] + 1) % 2
 
-fun convertStringToBinary(input: String): List<Int> {
-    val bytes = input.toByteArray()
-    val binary = mutableListOf<Int>()
-    for (b in bytes) {
-        var bValue = b.toInt()
-        for (i in 0..7) {
-            binary.add(if (bValue and 128 == 0) 0 else 1)
-            bValue = bValue shl 1
-        }
-    }
-    return binary.toList()
-}
-
-fun convertBinaryToString(binary: List<Int>): String {
-    val letters = binary.joinToString("")
-    var s = ""
-    var index = 0
-    while (index < letters.length) {
-        val temp = letters.substring(index, index + 8)
-        val num = temp.toInt(2)
-        val letter = num.toChar()
-        s += letter
-        index += 8
-    }
-    return s
+    return new
 }

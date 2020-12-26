@@ -25,14 +25,6 @@ class Matrix<T> (val xSize: Int, val ySize: Int, val array: Array<Array<T>>) {
         array[x][y] = t
     }
 
-    inline fun forEach(operation: (T) -> Unit) {
-        array.forEach { elem -> elem.forEach { operation.invoke(it) } }
-    }
-
-    inline fun forEachIndexed(operation: (x: Int, y: Int, T) -> Unit) {
-        array.forEachIndexed { x, p -> p.forEachIndexed { y, t -> operation.invoke(x, y, t) } }
-    }
-
     inline fun forEachInRow(row: Int, operation: (T) -> Unit) {
         array[row].forEach { operation.invoke(it) }
     }
